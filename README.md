@@ -1,10 +1,10 @@
-#####Forked from:
+##### Forked from:
 https://aws.amazon.com/blogs/compute/creating-an-enterprise-scheduler-using-aws-lambda-and-tagging/
 
-##Purpose:
+## Purpose:
 Run as a scheduler to power on/off EC2 instances based on a TAG that defines the schedule. 
 
-##How to Schedule
+## How to Schedule
 
  To enable the lk-scheduler, a Lambda function should be added and run on a schedule. The function describes EC2 
  instances within the same region, and determines if there are any On or Off operations to be executed. 
@@ -23,14 +23,14 @@ example, you may choose to run the function every 20 minutes, and then set max_d
 keep the max_delta value slightly higher than the rate which the function is invoked so as not to miss any On/Off 
 actions. We recommend setting it two minutes above the function invocation rate.
 
-##Required IAM permissions
+## Required IAM permissions
 
 The Lambda function requires permissions to query the resource tags using DescribeInstances, and then to act on them, 
 with either a StartInstances or StopInstances API operation call.  This is accomplished via a IAM Role assigned to the
 Lambda function. See the IAM Role section below on how to create and assign the role. 
 
 
-##Create the Lambda function
+## Create the Lambda function
 
 * Open the Lambda console and choose Create a Lambda function.
 * Choose Next to skip a blueprint selection.
