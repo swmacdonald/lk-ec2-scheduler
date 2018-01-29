@@ -99,5 +99,5 @@ Mon-Fri at 5 PM (1700) PST.
 
 1. Determine which instances you need to scheduled
 2. Create the scheduler string using the examples above.  
-3. Create and assign a new tag named: lk-EntSched with the assigned schedule.
+3. Create and assign a new tag named: `lk-EntSched` with the assigned schedule.
 4. Monitor the CloudWatch Logs for actions on your scheduled instances.  
