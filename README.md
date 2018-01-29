@@ -2,11 +2,11 @@
 https://aws.amazon.com/blogs/compute/creating-an-enterprise-scheduler-using-aws-lambda-and-tagging/
 
 ## Purpose:
-Run as a scheduler to power on/off EC2 instances based on a TAG that defines the schedule. 
+Run as a AWS Lamda scheduler to power on/off EC2 instances based on a TAG that defines the schedule. 
 
 ## How to Schedule
 
- To enable the lk-scheduler, a Lambda function should be added and run on a schedule. The function describes EC2 
+ To enable the lk-ec2-scheduler, a Lambda function is added and run on a schedule. The function describes EC2 
  instances within the same region, and determines if there are any On or Off operations to be executed. 
  The recommend configuration is to run the function every 20 minutes. By default, the function determines On/Off actions 
  from the last 22 minutes.
@@ -35,20 +35,19 @@ Lambda function. See the IAM Role section below on how to create and assign the 
 * Open the Lambda console and choose Create a Lambda function.
 * Choose Next to skip a blueprint selection.
 * Choose Next to skip creation of a trigger at this time.
-* Enter a function name and note it for later use. For example: enterprise_scheduler_function.
+* Enter a function name and note it for later use. For example: lk-ec2_scheduler_function.
 * For Runtime, choose Python 2.7.
 * For Code entry type, choose Edit code inline.
-* Paste the function code from the local version of the scheduler that was saved in the previous section (enterprise_scheduler.py).
-* For Handler, enter enterprise_scheduler.lambda_handler .
+* Paste the function code from the file lk-ec2_scheduler.py.
+* For Handler, enter lk-ec2_scheduler.lambda_handler .
 * For Role selection, choose Create a custom role.
 
 A window pops up displaying the IAM form for creating a new IAM execution role for Lambda.
 
-#### Add an IAM role
+#### Create/Add an IAM role
 * In the IAM window, for Role name, enter ent_scheduler_execution_role (or similar text)
 * Choose View Policy Document, Edit the policy, OK (to confirm that you've read the documentation)
-* Replace the contents of the default policy with the following:
- 
+* Replace the contents of the default policy with the contents from the lk-scheduler_role.json file. 
 * Choose Allow to save the policy and close the window.
 * For Timeout, enter 5 minutes.
 * Choose Next.
@@ -58,30 +57,29 @@ A window pops up displaying the IAM form for creating a new IAM execution role f
 
 * Choose Triggers, Add trigger.
 * Click on the box and choose CloudWatch Events – Schedule.
-* For Schedule expression, enter the rate at which you would like the enterprise scheduler to be invoked. Recommended a value of "rate(20 minutes)".
+* For Schedule expression, enter the rate at which you would like the lk-ec2-scheduler to be invoked. Recommended value of "rate(20 minutes)".
 
 For example use `cron(0/20 * * * ? *)` to run the lk-scheduler task every 20 minutes. 
 
-At this point, a tagged Amazon EC2 instance in the region where the Lambda function is running is either turned on or off, based on its schedule.
+At this point, the lk-ec2-scheduler will run every 20 minutes within the region where the Lambda function is running.  The function finds an instance with the associated tag, it will evaluate the schedule string in the tag and either turned on or off the instance, based on its schedule.
 
 ## Enabling the scheduler on a resource
 Assigning a schedule to a resource using a tag requires following these guidelines:
 
-* The resource tag must match the tag named in the Lambda function. You can modify the schedule_tag parameter to choose a tag name such as YourCompanyName Scheduler.
+* The resource tag must match the tag named in the Lambda function. The default Tag used by the function is: `lk-EntSched`
 * The scheduler works on a weekly basis (7 days of the week), and you may specify up to 1 set hour for turning the resource On or Off. For each day that's set in the On or Off section, the same hour is used.
 * The current time is interpreted by the function using UTC, therefor the schedule tag should use the UTC time for turning instances both On and Off.
-* Use the following scheduler syntax in the Lambda function:
+* The scheduler syntax is comprised of 5 tokens separated by a semicolon. Use the following scheduler syntax in the Lambda function:
 
   `Days-for-On;Hour-for-On;Days-for-Off;Hour-for-off;Optional-Disable;`
   
 * The Days values should be noted with the first 3 letters of the day. Accepted values are: mon, tue, wed, thu, fri, sat, sun. Multiple days can be specified with comma separation and order is ignored.
 * The Hour value should be noted in 24H format HHMM.
-* Optional-Disable states that this tag will be ignored by the function, allowing the user to keep the configuration and have the scheduler skip over this resource temporarily. Note: The function can be configured to disregard Optional-Disable based on company policy.
+* Optional-Disable states that this tag will be ignored by the function, allowing the user to keep the configuration and have the scheduler skip over this resource temporarily. 
 
 ## Example TAG syntax: 
 
-Note: CloudWatch/Lambda Schedule times are in UTC! If you wish to schedule a EC2 instance on at 8 AM PST (local time) you must convert
-the local time to UTC. 
+Note: CloudWatch/Lambda Schedule times are in UTC! If you wish to schedule a EC2 instance on at 8 AM PST (local time) you must convert the local time to UTC. 
 
 The default Tag used by the function is: `lk-EntSched`
 
